@@ -1,0 +1,15 @@
+[package]
+authors = ["Jonathan 'theJPster' Pallant"]
+description = "A test program for the QEMU PPCE500 virtual PowerPC machine"
+edition = "2024"
+license = "GPL3-or-Later"
+name = "ppc_demo"
+version = "0.1.0"
+
+[dependencies]
+arbitrary-int = "2.0.0"
+bitbybit = "1.4.0"
+
+[profile.release]
+debug = 2
+opt-level = "s"
