@@ -1,5 +1,9 @@
 //! Start-up code for the PPCE500 machine emulated by QEMU
 //!
+//! This code does not initialise .data and .bss because it assumes you are
+//! executing from RAM and that when the machine code (.text) was loaded into
+//! RAM, the .data, .rodata and .bss sections were also loaded.
+//!
 //! Requires nightly rust, and my new `powerpc-unknown-none-eabi` target.
 //!
 //! Copyright (c) Jonathan 'theJPster' Pallant
@@ -30,18 +34,18 @@ core::arch::global_asm!(
     .globl   _Reset
     .type    _Reset,@function
 _Reset:
-    bl       .Laddr                // get current address
+    bl       .Laddr                   // get current address
 .Laddr:
-    mflr     4                     // real address of .Laddr
-    lwz      0, (.Lstk-.Laddr)(4)  // absolute stack address location
-    mr       1, 0                  // use user defined stack
+    mflr     %r4                      // real address of .Laddr
+    lwz      %r0, (.Lstk-.Laddr)(%r4) // absolute stack address location
+    mr       %r1, %r0                 // use user defined stack
 
-    addi     1, 1, -4              // make sure we don't overwrite debug mem
-    lis      0, 0
-    stw      0, 0(1)               // clear back chain
-    stwu     1, -64(1)             // push another stack frame
+    addi     %r1, %r1, -4             // make sure we don't overwrite debug mem
+    lis      %r0, 0
+    stw      %r0, 0(%r1)              // clear back chain
+    stwu     %r1, -64(%r1)            // push another stack frame
 
-    bl       kmain                 // jump to rust
+    bl       kmain                    // jump to rust
     trap
     
 .Lstk:
