@@ -30,5 +30,28 @@ fn main() {
         writeln!(console).unwrap();
     }
 
+    let z = unsafe { ppc_demo::c_library::clib_add_two_double(1.0, 2.0) };
+    writeln!(console, "Adding 1.0f64 and 2.0f64 to get {}", z).unwrap();
+
+    let z = unsafe { ppc_demo::c_library::clib_add_two_float(1.0, 2.0) };
+    writeln!(console, "Adding 1.0f32 and 2.0f32 to get {}", z).unwrap();
+
+    let z = unsafe { ppc_demo::c_library::clib_add_two_ulong(1, 2) };
+    writeln!(console, "Adding 1 and 2 to get {}", z).unwrap();
+
+    let mut sample_struct = ppc_demo::c_library::data_t {
+        x: 0x5Au8,
+        y: core::f64::consts::PI,
+        z: 0x1337C0DE,
+    };
+
+    writeln!(console, "Have built structure {:x?}", sample_struct);
+
+    let y = unsafe { ppc_demo::c_library::get_double_field(&raw mut sample_struct) };
+    writeln!(console, "C code said y={}", y).unwrap();
+
+    let z = unsafe { ppc_demo::c_library::get_int_field(&raw mut sample_struct) };
+    writeln!(console, "C code said z=0x{:08x}", z).unwrap();
+
     writeln!(console, "All done!").unwrap();
 }

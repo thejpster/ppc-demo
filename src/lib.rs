@@ -10,11 +10,12 @@
 //!
 //! Licensed under the GPL Version 3 or later
 
-
 #![no_std]
 #![feature(asm_experimental_arch)]
 
 use arbitrary_int::{u2, u4, u20};
+
+pub mod c_library;
 
 // Copyright (c) 1995 Cygnus Support
 //
@@ -244,14 +245,14 @@ pub fn init_mmu() {
 }
 
 pub struct Uart {
-    base_addr: *mut u32
+    base_addr: *mut u32,
 }
 
 impl Uart {
     /// Create a new handle for UART0
     pub unsafe fn new_uart0() -> Uart {
         Uart {
-            base_addr: 0xe000_4500 as *mut u32
+            base_addr: 0xe000_4500 as *mut u32,
         }
     }
 }
@@ -266,7 +267,6 @@ impl core::fmt::Write for Uart {
         Ok(())
     }
 }
-
 
 #[panic_handler]
 fn panic_handler(_info: &core::panic::PanicInfo) -> ! {

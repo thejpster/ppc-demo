@@ -13,3 +13,6 @@ bitbybit = "1.4.0"
 [profile.release]
 debug = 2
 opt-level = "s"
+
+[build-dependencies]
+cc = "1.2.36"

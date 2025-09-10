@@ -24,8 +24,51 @@ All done!
 
 Press `Ctrl+A, X` to quit.
 
+## Tools
+
+You will need a C compiler. I use [crosstool-ng](https://github.com/crosstool-ng/crosstool-ng) to build one with [this config](./crosstool-ng/.config).
+
+```bash
+cd crosstool-ng
+ct-ng build
+export PATH=$PATH:~/x-tools/powerpc-unknown-eabi/bin
+```
+
+You then need the `powerpc-unknown-none-eabi` target from https://github.com/thejpster/rust/tree/add-powerpc-bare-metal
+
+```bash
+git clone https://github.com/thejpster/rust
+cd rust
+git checkout add-powerpc-bare-metal
+cat > bootstrap.toml << EOF
+change-id = 145976
+profile = 'dist'
+
+[llvm]
+download-ci-llvm = true
+
+[gcc]
+
+[build]
+configure-args = []
+
+[install]
+
+[rust]
+
+[dist]
+
+[target.x86_64-unknown-linux-gnu]
+
+[target.powerpc-unknown-none-eabi]
+cc = "powerpc-unknown-eabi-gcc"
+EOF
+BOOTSTRAP_SKIP_TARGET_SANITY=1 ./x build --stage 1 compiler library/std --target=x86_64-unknown-linux-gnu,powerpc-unknown-none-eabi
+rustup toolchain link stage1 $(pwd)/build/x86_64-unknown-linux-gnu/stage1
+```
+
 ## Licence
 
 This code is licensed under the GPL v3 or Later.
 
-Copyright (c) Jonathan 'theJPster' Pallant
+Copyright (c) Jonathan 'theJPster' Pallant, 2025
