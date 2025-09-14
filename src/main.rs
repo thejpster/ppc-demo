@@ -45,7 +45,7 @@ fn main() {
         z: 0x1337C0DE,
     };
 
-    writeln!(console, "Have built structure {:x?}", sample_struct);
+    writeln!(console, "Have built structure {:x?}", sample_struct).unwrap();
 
     let y = unsafe { ppc_demo::c_library::get_double_field(&raw mut sample_struct) };
     writeln!(console, "C code said y={}", y).unwrap();
