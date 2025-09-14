@@ -1,14 +1,20 @@
 # Rust Demo for the QEMU virtual PPCE500 Machine
 
-This example shows how to compile Rust using the `powerpc-unknown-none-eabi` target that I just wrote.
+This example shows how to compile Rust for PowerPC using a JSON target.
 
-It runs in QEMU.
+This target has no FPU support, because we're targeting the Freescale E500v1
+CPU and that does not have an FPU.
+
+The Freescale E500v1 does have a "Signal Processing Engine" (SPE) for SIMD and
+a "Single Precision Embedded Scalar Floating Point" (SPESFP) for scalar
+single-precision FP, but I have not been able to get either to work.
 
 ```console
-$ export CROSS_COMPILE=powerpc-unknown-eabi-
-$ cargo run --release
-  Finished `release` profile [optimized] target(s) in 0.01s
-     Running `qemu-system-ppc -cpu e500 -machine ppce500 -d guest_errors,unimp -nographic -bios target/powerpc-unknown-none-eabi/release/ppc_demo`
+$ export CC_powerpc_unknown_none_eabi=clang
+$ export CFLAGS_powerpc_unknown_none_eabi="-mcpu=e500 -msoft-float"
+$ cargo +nightly run --target=powerpc-unknown-none-eabi.json -Zbuild-std=core
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 6.74s
+     Running `qemu-system-ppc -machine ppce500 -cpu e500v1 -d guest_errors,unimp -nographic -bios target/powerpc-unknown-none-eabi/debug/ppc_demo`
 Hello, this is Rust on the PPCE500 machine
 001 002 003 004 005 006 007 008 009 010 
 002 004 006 008 010 012 014 016 018 020 
@@ -29,52 +35,25 @@ C code said z=0x1337c0de
 All done!
 ```
 
-Press `Ctrl+A, X` to quit.
-
-This target does not support the PowerPC Signal Processing Engine (SPE) because support was dropped after GCC 8 due to it being unmaintained. Nor does it support the PowerPC Variable Length Encoding (VLE) extension because LLVM does not support VLE.
+Press `Ctrl+A, X` to quit QEMU.
 
 ## Tools
 
-You will need a C compiler. I use [crosstool-ng](https://github.com/crosstool-ng/crosstool-ng) to build one with [this config](./crosstool-ng/.config).
+You will need a C compiler. I have used [crosstool-ng](https://github.com/crosstool-ng/crosstool-ng) to build one with [this config](./crosstool-ng/.config).
 
 ```bash
 cd crosstool-ng
 ct-ng build
 export PATH=$PATH:~/x-tools/powerpc-unknown-eabi/bin
-```
+export CC_powerpc_unknown_none_eabi=powerpc-unknown-eabi-gcc
+export CFLAGS_powerpc_unknown_none_eabi="-mcpu=8540 -msoft-float"
+  ```
 
-You then need the `powerpc-unknown-none-eabi` target from https://github.com/thejpster/rust/tree/add-powerpc-bare-metal
+I have also used `clang`.
 
 ```bash
-git clone https://github.com/thejpster/rust
-cd rust
-git checkout add-powerpc-bare-metal
-cat > bootstrap.toml << EOF
-change-id = 145976
-profile = 'dist'
-
-[llvm]
-download-ci-llvm = true
-
-[gcc]
-
-[build]
-configure-args = []
-
-[install]
-
-[rust]
-
-[dist]
-
-[target.x86_64-unknown-linux-gnu]
-
-[target.powerpc-unknown-none-eabi]
-cc = "powerpc-unknown-eabi-gcc"
-EOF
-BOOTSTRAP_SKIP_TARGET_SANITY=1 ./x build --stage 1 compiler library/std proc_macro \
-  --target=x86_64-unknown-linux-gnu,powerpc-unknown-none-eabi
-rustup toolchain link stage1 $(pwd)/build/x86_64-unknown-linux-gnu/stage1
+export CC_powerpc_unknown_none_eabi=clang
+export CFLAGS_powerpc_unknown_none_eabi="-mcpu=e500 -msoft-float"
 ```
 
 ## Licence

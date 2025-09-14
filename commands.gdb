@@ -1,5 +1,5 @@
 target extended-remote :1234
-break _Reset
+break ppc_demo::main
 layout split
 stepi
 

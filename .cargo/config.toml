@@ -1,5 +1,8 @@
 [target.powerpc-unknown-none-eabi]
-runner = "qemu-system-ppc -machine ppce500 -cpu e500 -d guest_errors,unimp -nographic -bios"
+runner = "qemu-system-ppc -machine ppce500 -cpu e500v1 -d guest_errors,unimp -nographic -bios"
 
 [build]
-target = "powerpc-unknown-none-eabi"
+target = "powerpc-unknown-none-eabi.json"
+
+[unstable]
+build-std = ["core"]
